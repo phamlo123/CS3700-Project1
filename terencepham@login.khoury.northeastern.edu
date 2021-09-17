@@ -1,0 +1,46 @@
+import socket
+import sys
+import argparse
+
+host = sys.argv[-2]
+studentID = [-1]
+
+port_number = 27993
+my_socket = socket.socket ()
+my_socket.connect (('proj1.3700.network', 27993))
+
+# Send Hello
+hello_message = 'ex_string HELLO {}'.format ('001418312') + '\n'
+my_socket.sendall (bytes (hello_message, 'utf-8'))
+
+
+def executeThisCodes ():
+    portion = my_socket.recv (1024)
+
+    count = 0
+    if portion.decode ().split (' ')[1] == 'FIND':
+        ls = portion.decode ().split (' ')
+        char = ls[2]
+        result = ls[3]
+        while True:
+            if portion.decode ()[-2:-1] == '\n':
+                break
+            else:
+                result = result + portion.decode ()
+                portion = my_socket.recv (1024)
+        for element in result:
+            if char == element:
+                count = count + 1
+            else:
+                continue
+
+        countMessage = 'ex_string COUNT {}\n'.format (count)
+
+        countBytes = countMessage.encode ()
+        my_socket.send (countBytes)
+        executeThisCodes ()
+    else:
+        print (portion.decode ())
+
+
+executeThisCodes ()
